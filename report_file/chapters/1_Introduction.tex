@@ -1,0 +1,36 @@
+
+\section{Introduction}
+Yoga is a globally practiced discipline that requires precise body alignment for maximum therapeutic benefit and injury prevention. However, access to expert instructors remains limited, particularly for home practitioners practicing in remote areas. Performing yoga poses incorrectly not only reduces the therapeutic benefit but also risks musculoskeletal injury. As the volume of digital wellness technology grows, there is an increasing need for reliable, real-time AI document and action intelligence. 
+
+This project builds the SmartYoga platform to fill that gap: a full-stack, AI-powered system that acts as a virtual yoga trainer operable via a standard webcam. The system detects foundational poses, extracts skeletal landmarks, and provides real-time, priority-ranked voice feedback to help practitioners improve their form independently and safely.
+
+\section{Problem Statement}
+\subsection{Rationale for Automated Yoga Coaching}
+Effective access to professional yoga guidance matters for injury prevention and health optimization. A home practitioner needs more than just a static video; they require a system that can "see" them and provide the same level of corrective feedback as a human instructor. The democratization of this expertise through AI is critical for making safe yoga practice accessible to those who cannot attend expensive physical studios.
+
+\subsection{Barriers to Effective Real-Time AI Coaching}
+Despite the capabilities of modern computer vision, several practical barriers remain:
+\begin{enumerate}
+    \item \textbf{Classification vs. Correction Gap:} Most existing systems can identify a pose (classification) but cannot determine if the alignment is anatomically correct (correction).
+    \item \textbf{Information Overload:} Simultaneous reporting of multiple joint errors often confuses the user.
+    \item \textbf{Landmark Jitter:} High-frequency noise in raw skeletal landmark detection makes overlays unstable and angle data unreliable.
+    \item \textbf{Engagement Flow:} A lack of automated state management means users must manually pause or advance their routines, disrupting the meditative flow of yoga.
+    \item \textbf{Hardware Constraints:} High-fidelity pose estimation often requires expensive GPUs, making it inaccessible on standard laptops.
+\end{enumerate}
+
+\subsection{Research Gap}
+While human pose estimation (OpenPose, MediaPipe) has been studied extensively, the integration of these features into a production-grade application that combines classification, biomechanical rules, priority feedback, and automated routine management on commodity hardware remains a significant engineering challenge. Most existing open-source solutions are research scripts rather than cohesive, user-ready platforms.
+
+\section{Motivation and Project Objectives}
+The primary motivation behind this project is to build a secure, attributable, and deployable AI yoga coach that operates entirely locally on a 512MB RAM budget if necessary. The objectives are:
+\begin{enumerate}
+    \item Build a MobileNetV2-based pose classifier reaching over 88\% test accuracy.
+    \item Integrate MediaPipe landmark detection with O(1) memory complexity for edge deployment.
+    \item Design a priority-ranked voice feedback engine to provide actionable, non-disruptive guidance.
+    \item Implement an automated five-pose guided routine using a Finite State Machine (FSM).
+    \item Apply Exponential Moving Average (EMA) smoothing to eliminate landmark jitter for a professional-grade HUD.
+    \item Enforce privacy by ensuring 100\% offline operation on standard hardware.
+\end{enumerate}
+
+\section{Scope of the Project}
+The SmartYoga platform handles real-time video capture, skeletal analysis, and voice-driven coaching for five foundational poses: Downward Dog, Goddess, Plank, Tree, and Warrior II. This project includes the full lifecycle from data curation and CNN two-stage training to system integration and performance evaluation. Advanced features like 3D path tracking and multi-person analysis are identified as future work.

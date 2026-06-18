@@ -1,0 +1,63 @@
+
+This chapter surveys existing work in yoga pose recognition, human body landmark detection, and AI-driven fitness coaching systems that provide relevant technical context for this project.
+
+\section{Human Pose Estimation}
+\subsection{OpenPose: Bottom-Up Multi-Person Tracking}
+Human pose estimation is the computer vision task of detecting and tracking key anatomical landmarks (joints) from image or video data. Cao et al.~\cite{cao2017realtime} introduced OpenPose, a pioneering bottom-up approach that simultaneously detects body, hand, and face keypoints for multiple people in real time. The methodology utilizes Part Affinity Fields (PAFs) to learn the association between body parts, which allows the system to scale efficiently with the number of people in the frame. This established the precedent for skeleton-based body analysis in downstream classification tasks. However, OpenPose often requires significant GPU resources for optimal performance, making it challenging for deployment on standard consumer laptops without high-end hardware.
+
+\subsection{MediaPipe BlazePose: High-Fidelity Tracking on Edge Devices}
+Google's MediaPipe Pose~\cite{mediapipe2020} extended the capabilities of human pose estimation to edge and mobile devices. It utilizes a highly efficient BlazePose model that predicts 33 high-fidelity 3D body landmarks at real-time speeds. Unlike bottom-up approaches, BlazePose uses a top-down strategy starting with a person detector. The model is particularly optimized for single-person tracking with high temporal consistency, which is critical for fitness applications where the user is moving. This framework serves as the foundation of the landmark extraction module of this project due to its low latency and high accuracy on commodity CPUs.
+
+\section{Deep Learning for Action and Pose Classification}
+\subsection{MobileNet Architectures for Efficiency}
+Convolutional Neural Networks (CNNs) have demonstrated exceptional performance in image classification tasks. However, large architectures like VGG16 or ResNet are often too computationally expensive for real-time mobile use. Howard et al.~\cite{howard2017mobilenets} addressed this by introducing MobileNets, a family of efficient CNNs designed for mobile and embedded vision applications. The core innovation is the use of depthwise separable convolutions, which significantly reduce the number of parameters and floating-point operations while maintaining competitive accuracy.
+
+\subsection{MobileNetV2: Residual Blocks and Linear Bottlenecks}
+Sandler et al.~\cite{sandler2018mobilenetv2} further improved this with MobileNetV2, incorporating linear bottleneck layers and inverted residual blocks. These architectural changes allow the network to preserve information across layers more effectively, significantly reducing parameter count while improving performance on benchmark datasets like ImageNet. These properties make MobileNetV2 ideal for real-time yoga classification on standard consumer hardware, where power and compute are limited.
+
+\subsection{Transfer Learning and Domain Adaptation}
+Transfer learning is the practice of taking a model pre-trained on a massive dataset, such as ImageNet~\cite{deng2009imagenet}, and fine-tuning it on a domain-specific task with a relatively smaller dataset. As systematically studied by Yosinski et al.~\cite{yosinski2014transferable}, features learned in the early layers of a CNN are often general (like edges and textures) and can be transferred across domains. By freezing these early layers and training only the top layers, and subsequently fine-tuning with a low learning rate, a model can achieve high accuracy on specialized tasks like yoga pose detection even with limited training data. This strategy is central to the training pipeline of this project.
+
+\section{Yoga and Fitness AI Systems}
+Several prior systems have addressed automated yoga or fitness pose analysis, providing a foundation for our research.
+
+\subsection{The Yoga-82 Dataset}
+Verma et al.~\cite{verma2020yoga82} introduced Yoga-82, a large-scale dataset for fine-grained yoga pose classification. This dataset includes 82 categories of yoga poses, organized in a hierarchical structure. While their work demonstrated the efficacy of deep feature extraction for semantic pose understanding, the focus was purely on static image classification. Their system does not provide real-time skeletal tracking or any form of corrective feedback, which limits its utility as a training assistant.
+
+\subsection{AI Fitness Coaching Systems}
+Academic and open-source projects have explored building AI fitness coaches using lighter-weight models like PoseNet. These systems are typically used for rep counting or simple form analysis in exercises like squats or pushups. While they succeed in flagging major deviations from ideal joint angles, they often lack a continuous, voice-guided training loop and sophisticated state management. This makes them more suitable for short-term feedback rather than a full, guided yoga session.
+
+\subsection{Specialized Hardware Solutions}
+Commercial products like StretchSense or YogAlign AI utilize IMU (Inertial Measurement Unit) sensors or specialized marker-based tracking to score poses. These systems offer high accuracy but require expensive, specialized hardware that is often cumbersome for the user to wear. Our project aims to achieve similar results using only markerless tracking from a standard webcam, making the technology accessible to a much broader audience.
+
+\section{Structured Review of Key Prior Work}
+Table~\ref{tab:litreview} provides a structured summary of the most relevant methods and datasets that informed the design of this project.
+
+\begin{table}[H]
+    \centering
+    \caption{Structured review of key prior work: method, contribution, and project response}
+    \begin{tabular}{|p{0.15\textwidth}|p{0.25\textwidth}|p{0.25\textwidth}|p{0.25\textwidth}|}
+        \hline
+        \textbf{Work} & \textbf{Method} & \textbf{Contribution} & \textbf{Project Response} \\
+        \hline
+        Cao et al. (OpenPose) \cite{cao2017realtime} & Bottom-up multi-person keypoint detection & Real-time multi-person skeletal tracking via PAFs & High GPU requirements; project uses MediaPipe for CPU-only edge performance. \\
+        \hline
+        MediaPipe (2020) \cite{mediapipe2020} & Top-down BlazePose landmarker & High-fidelity 33 landmark tracking on mobile/CPU & Adopted as the core foundation for landmark extraction and HUD logic. \\
+        \hline
+        Sandler et al. (MobileNetV2) \cite{sandler2018mobilenetv2} & Inverted residual blocks and linear bottlenecks & Efficient CNN architecture for mobile/embedded vision & Chosen as the classification backbone for real-time inference on laptops. \\
+        \hline
+        Verma et al. (Yoga-82) \cite{verma2020yoga82} & Hierarchical fine-grained classification & Large-scale dataset for yoga pose recognition & Purely classification-based; project adds biomechanical rules for correction. \\
+        \hline
+    \end{tabular}
+    \label{tab:litreview}
+\end{table}
+
+\section{Summary of Identified Gaps}
+The literature review identifies several critical gaps in existing AI yoga systems:
+\begin{itemize}
+    \item \textbf{Classification vs.\ Correction Gap:} Most datasets and models focus on identifying the pose name but fail to assess the quality of the practitioner's form.
+    \item \textbf{Feedback Overload:} Existing corrective systems often report all form errors simultaneously, which can be overwhelming for a practitioner during a session.
+    \item \textbf{Stability and Jitter:} Markerless tracking systems frequently suffer from high-frequency coordinate jitter, making real-time overlays visually distracting and unreliable for angle computation.
+    \item \textbf{Instructional Flow:} There is a lack of cohesive, hands-free systems that guide a user through a multi-pose routine automatically without manual intervention.
+\end{itemize}
+This project addresses these gaps through the integration of a rules engine for form correction, a priority-based voice feedback mechanism, EMA coordinate smoothing, and a finite state machine for automated routine management.

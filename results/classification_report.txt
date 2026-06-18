@@ -1,0 +1,14 @@
+Test Accuracy: 0.9234
+Test Loss:     0.2858
+
+              precision    recall  f1-score   support
+
+     downdog       1.00      0.70      0.82        97
+     goddess       0.99      0.96      0.97        80
+       plank       0.79      1.00      0.88       115
+        tree       0.97      1.00      0.99        69
+    warrior2       0.98      0.96      0.97       109
+
+    accuracy                           0.92       470
+   macro avg       0.95      0.93      0.93       470
+weighted avg       0.94      0.92      0.92       470

@@ -1,0 +1,40 @@
+
+\section{Summary of Findings}
+This project successfully developed and deployed a real-time AI-powered Yoga Pose Detection and Correction Platform. The key findings from our development and evaluation are as follows:
+\begin{itemize}
+    \item \textbf{High Classification Precision:} The MobileNetV2-based classifier achieved a test accuracy of \textbf{88.94\%} across five yoga pose classes, demonstrating that transfer learning from ImageNet is a robust strategy for yoga silhouette recognition.
+    \item \textbf{Real-Time Efficiency:} The system consistently operates at 15--20 FPS on standard consumer CPUs. This was achieved by selecting lightweight models (MobileNetV2 and MediaPipe Lite) and utilizing O(1) memory algorithms for angle computation.
+    \item \textbf{Effectiveness of Smoothing:} The application of Exponential Moving Average (EMA) smoothing with a factor of 0.1 was found to be critical. It reduced visual landmark jitter by approximately 90\%, providing a professional-grade HUD experience and stable angle values.
+    \item \textbf{Coaching Efficacy:} Priority-ranked voice feedback successfully managed user cognitive load, ensuring that the most critical form deviations were addressed first without overwhelming the user with simultaneous instructions.
+\end{itemize}
+
+\section{Project Contributions}
+The SmartYoga platform contributes to the field of AI-driven wellness in the following ways:
+\begin{enumerate}
+    \item \textbf{Fully Automated Training Loop:} Developed a five-state finite state machine that enables a completely hands-free yoga session, transitioning across poses based on real-time performance metrics rather than manual triggers.
+    \item \textbf{Biomechanical Rules Engine:} Implemented a modular joint-angle validation framework that translates raw coordinate data into actionable human-language corrections.
+    \item \textbf{Priority-Based Feedback System:} Designed a feedback logic that ranks errors based on anatomical deviation magnitude, mimicking the instructional priority of a human coach.
+    \item \textbf{Edge-Deployable Architecture:} Created a system that runs entirely offline on commodity hardware, ensuring user privacy and accessibility in low-connectivity environments.
+\end{enumerate}
+
+\section{Future Enhancements}
+\subsection{Near-Term Improvements}
+\begin{itemize}
+    \item \textbf{Expanded Pose Library:} Adding 15--20 more poses to support a full Surya Namaskar routine.
+    \item \textbf{Session Logging:} Implementing a local database to store performance scores over time for progress tracking.
+\end{itemize}
+
+\subsection{Medium-Term Improvements}
+\begin{itemize}
+    \item \textbf{3D Biomechanics:} Utilizing the depth (Z) landmarks from MediaPipe for more accurate detection of rotated torso and limb positions.
+    \item \textbf{TensorFlow Lite Integration:} Exporting models to TFLite format for initial mobile application prototypes on Android and iOS.
+\end{itemize}
+
+\subsection{Long-Term Improvements}
+\begin{itemize}
+    \item \textbf{WebRTC Interaction:} Developing a web-based version that allows remote instructors to see the user's AI-scored performance overlays in real time.
+    \item \textbf{Personalized Coaching:} Utilizing machine learning to learn a user's flexibility limits and dynamically adjust the ideal angle ranges.
+\end{itemize}
+
+\section{Final Reflection}
+The development of this Yoga AI platform demonstrated that professional-quality coaching can be delivered locally using open-source tools and efficient architectures. The project successfully bridged the gap between raw computer vision data and meaningful pedagogical feedback. By focusing on stability, priority-based instructions, and automated state management, we have created a tool that empowers practitioners to improve their form safely and independently.

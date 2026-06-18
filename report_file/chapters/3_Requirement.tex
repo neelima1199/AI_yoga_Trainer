@@ -1,0 +1,220 @@
+\section{Functional Requirements}
+The functional requirements define the core behaviors and tasks the system must execute to fulfil its purpose as a virtual yoga trainer.
+
+Firstly, the system is required to capture live video frames from a standard USB or built-in webcam. To ensure sufficient detail for landmark detection, the capture resolution is set to 1280$\times$720 pixels (720p). The application must handle individual frames in real time with minimal latency.
+
+Secondly, the system must classify the yoga pose being performed from five target categories: Downward Dog, Goddess, Plank, Tree, and Warrior II. This classification must be reliable, with a confidence threshold set at $\geq 60\%$. Only when the classifier is confident in the pose identification should the subsequent correction logic be fully engaged for that specific pose.
+
+Thirdly, the application must detect and track 33 body landmarks per frame using the MediaPipe Pose Landmarker. The system utilizes the "Lite" variant of the model via the MediaPipe Tasks API to balance accuracy and inference speed on CPU-based hardware.
+
+Fourthly, the system computes eight key joint angles from the detected pixel-space landmarks. These joints include the left and right shoulders, elbows, hips, and knees. The computation must be robust to changes in the practitioner's distance from the camera.
+
+Fifthly, the computed angles are compared against a predefined ideal-angle database. To account for natural variations in body types and flexibility, a tolerance of $\pm 15$ degrees is applied to the ideal ranges. If a joint falls within this range, it is considered correct.
+
+Sixthly, the system produces a real-time correctness score (0\% to 100\%) based on the proportion of joints that are within the ideal range for the target pose. This score serves as a quantitative measure of the practitioner's form.
+
+Seventhly, the application must speak the highest-priority corrective instruction via the offline TTS engine. To avoid overwhelming the user, instructions are spoken at intervals of at least 4 seconds, focusing on the joint with the largest deviation first.
+
+Eighthly, the system guides the user through all five poses sequentially using a five-state training loop. This automated progression ensures that the user completes a full yoga routine without manual intervention.
+
+Ninthly, the state machine advances to the next pose only after the user maintains a correctness score of $\geq 75\%$ for 10 continuous seconds. This "hold" requirement ensures that the practitioner has truly mastered the pose alignment.
+
+Finally, the application must display all corrective instructions simultaneously in the on-screen footer HUD. This provides a visual fallback for the user and allows them to see the full list of required adjustments.
+
+\section{Non-Functional Requirements}
+Non-functional requirements specify the quality attributes and constraints of the system.
+
+Performance is a critical constraint; the application must process and render at a minimum of 15 frames per second on a mid-range laptop CPU. High latency in the video feed or skeletal overlay would make the system unusable for real-time guidance.
+
+Usability is addressed by ensuring the system requires no keyboard or mouse interaction once the session has started. The entire session is voice-driven and automated, allowing the practitioner to focus entirely on their yoga practice.
+
+Reliability is ensured by the system's ability to maintain a stable state even when the user momentarily moves outside the camera frame. The skeletal and angle computation modules retain the last valid landmark state to prevent erratic feedback during brief occultations.
+
+Portability is a key requirement, as the application must run on standard Windows or Linux machines with Python 3.10+ and a webcam. It is designed to be accessible without the need for specialized depth cameras or high-end GPUs.
+
+Finally, the system must support offline operation. All core modules, including CNN inference, MediaPipe landmark detection, and the TTS engine, must function without an active internet connection to ensure user privacy and consistent performance regardless of network availability.
+
+\section{Project Scope and Constraints}
+The scope of this project is limited to the detection and correction of five foundational yoga poses. While the architecture is designed to be extensible, the current implementation focuses on providing a high-quality experience for these specific poses. The system is designed for single-person use in a home environment and assumes a relatively clear field of view for the webcam.
+
+Constraints include the use of commodity hardware without dedicated GPUs for inference. This necessitates the use of efficient models like MobileNetV2 and MediaPipe Lite. Additionally, the system relies on the accuracy of the underlying pose estimator; if landmarks are poorly detected due to lighting or background clutter, the accuracy of the corrective feedback will be affected.
+
+\section{Feasibility Study}
+A feasibility study is conducted prior to implementation to ensure the proposed system is viable across technical, operational, and economic dimensions.
+
+\subsection{Technical Feasibility}
+Technical feasibility is assessed based on the ability of current hardware and software platforms to support high-speed inference and real-time visualization.
+
+\begin{table}[H]
+    \centering
+    \caption{Technical Feasibility Overview}
+    \begin{tabular}{|p{0.3\textwidth}|p{0.6\textwidth}|}
+        \hline
+        \textbf{Aspect} & \textbf{Details} \\
+        \hline
+        Tech Stack & Python 3.10+, TensorFlow/Keras, MediaPipe, OpenCV (all open-source). \\
+        \hline
+        Modular Design & Core logic (classification, landmark detection, HUD, logic) is decoupled into independent modules. \\
+        \hline
+        Edge Inference & Successfully tested on standard laptops; no external GPU or cloud dependence. \\
+        \hline
+        Landmark Precision & MediaPipe Tasks API delivers consistent tracking at 15--20 FPS on CPU. \\
+        \hline
+    \end{tabular}
+    \label{tab:techfeas}
+\end{table}
+
+\subsection{Operational Feasibility}
+The system is operationally feasible as it satisfies the requirements of a voice-driven, autonomous training assistant usable by practitioners of all technical levels.
+
+\begin{table}[H]
+    \centering
+    \caption{Operational Feasibility Overview}
+    \begin{tabular}{|p{0.3\textwidth}|p{0.6\textwidth}|}
+        \hline
+        \textbf{Aspect} & \textbf{Details} \\
+        \hline
+        User Interface & Minimalist HUD with visual indicators; requires no manual keyboard interaction. \\
+        \hline
+        Learning Curve & Intuitive guided routine with reference images and spoken feedback. \\
+        \hline
+        Deployment & Single-command execution (\texttt{python app.py}) for easy environment setup. \\
+        \hline
+    \end{tabular}
+    \label{tab:opfeas}
+\end{table}
+
+\subsection{Economic Feasibility}
+The system is economically efficient as it builds upon open-source frameworks and common hardware, eliminating specialized infrastructure costs.
+
+\begin{table}[H]
+    \centering
+    \caption{Economic Feasibility Analysis}
+    \begin{tabular}{|p{0.3\textwidth}|p{0.6\textwidth}|}
+        \hline
+        \textbf{Aspect} & \textbf{Details} \\
+        \hline
+        Software Cost & Zero (all dependencies are MIT/Apache/BSD-licensed). \\
+        \hline
+        Hardware Cost & Low (standard laptop with built-in webcam). \\
+        \hline
+        Maintenance & Minimal operational overhead; runs locally without subscription fees. \\
+        \hline
+    \end{tabular}
+    \label{tab:econfeas}
+\end{table}
+
+\section{Software Requirement Specification (SRS)}
+\subsection{Functional Requirements}
+The functional requirements define the essential behaviors and tasks the SmartYoga platform must execute.
+
+\begin{table}[H]
+    \centering
+    \caption{Functional Requirements Specification}
+    \begin{tabular}{|c|p{0.25\textwidth}|p{0.55\textwidth}|}
+        \hline
+        \textbf{ID} & \textbf{Requirement} & \textbf{Description} \\
+        \hline
+        FR1 & Frame Capture & Capture 720p video from webcam at 15+ FPS. \\
+        \hline
+        FR2 & Pose Classification & Identify one of 5 target poses using CNN (threshold $\geq 60\%$). \\
+        \hline
+        FR3 & Landmark Tracking & Extract 33 high-fidelity landmarks via MediaPipe Tasks API. \\
+        \hline
+        FR4 & Angle Computation & Calculate joint angles at 8 keys joints from pixel coordinates. \\
+        \hline
+        FR5 & Jitter Smoothing & Apply EMA filtering to stabilize landmark rendering and angle data. \\
+        \hline
+        FR6 & Rule Enforcement & Compare angles against ideal-pose ranges ($\pm 15^{\circ}$ tolerance). \\
+        \hline
+        FR7 & Priority TTS & Speak the single most critical correction every 4 seconds. \\
+        \hline
+        FR8 & Routine Automation & Manage 5-pose routine transition via Finite State Machine (FSM). \\
+        \hline
+        FR9 & Automated Advancement & Transition only after maintaining correctness $\geq 75\%$ for 10s. \\
+        \hline
+    \end{tabular}
+    \label{tab:fr}
+\end{table}
+
+\subsection{Non-Functional Requirements}
+Non-functional requirements describe the quality and performance constraints of the system.
+
+\begin{table}[H]
+    \centering
+    \caption{Non-Functional Requirements Specification}
+    \begin{tabular}{|c|p{0.25\textwidth}|p{0.55\textwidth}|}
+        \hline
+        \textbf{ID} & \textbf{Requirement} & \textbf{Description} \\
+        \hline
+        NFR1 & Latency & Maximum end-to-end processing time per frame $\leq 65$ms. \\
+        \hline
+        NFR2 & Portability & Runs on standard Windows/Linux with Python 3.10+. \\
+        \hline
+        NFR3 & Autonomy & No keyboard/mouse input required once session starts. \\
+        \hline
+        NFR4 & Security & 100\% offline operation; no data transmitted over network. \\
+        \hline
+    \end{tabular}
+    \label{tab:nfr}
+\end{table}
+
+\section{Hardware and Software Requirements}
+\begin{table}[H]
+    \centering
+    \caption{Hardware and Software Requirements}
+    \begin{tabular}{|l|l|}
+        \hline
+        \textbf{Component} & \textbf{Specification} \\
+        \hline
+        Operating System & Windows 10 / Ubuntu 20.04 (64-bit) \\
+        \hline
+        CPU & Intel Core i5 (8th Gen) or equivalent \\
+        \hline
+        RAM & 8 GB minimum \\
+        \hline
+        Webcam & 720p or higher \\
+        \hline
+        Programming Language & Python 3.10 \\
+        \hline
+        Deep Learning Framework & TensorFlow 2.16 / Keras \\
+        \hline
+        Pose Estimation & MediaPipe 0.10.33 (Tasks API) \\
+        \hline
+        Computer Vision & OpenCV 4.x \\
+        \hline
+        Text-to-Speech & pyttsx3 (offline) \\
+        \hline
+        Training Dataset & Yoga Pose Images Dataset (5 classes) \\
+        \hline
+    \end{tabular}
+    \label{tab:requirements}
+\end{table}
+
+\section{Dataset Description}
+The training dataset consists of labelled still images of yoga poses organised into five classes. The directory structure follows the Keras \texttt{image\_dataset\_from\_directory} convention with \texttt{TRAIN} and \texttt{TEST} splits:
+
+\begin{table}[H]
+    \centering
+    \caption{Dataset Class Distribution}
+    \begin{tabular}{|l|c|c|}
+        \hline
+        \textbf{Pose Class} & \textbf{Training Images} & \textbf{Test Images} \\
+        \hline
+        Downward Dog (downdog) & $\sim$400 & 97 \\
+        \hline
+        Goddess & $\sim$300 & 80 \\
+        \hline
+        Plank & $\sim$450 & 115 \\
+        \hline
+        Tree & $\sim$280 & 69 \\
+        \hline
+        Warrior II (warrior2) & $\sim$420 & 109 \\
+        \hline
+        \textbf{Total} & \textbf{$\sim$1850} & \textbf{470} \\
+        \hline
+    \end{tabular}
+    \label{tab:dataset}
+\end{table}
+
+All images are resized to 224$\times$224 pixels, the standard input size for MobileNetV2, and normalised using the \texttt{preprocess\_input} function from the \texttt{tensorflow.keras.applications.mobilenet\_v2} module.
